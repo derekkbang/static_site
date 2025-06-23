@@ -1,4 +1,5 @@
 import re
+import sys
 import os
 from pathlib import Path
 import shutil
@@ -44,7 +45,7 @@ def change_extension(file_path, new_extension):
     new_file_path = base_name +"." + new_extension
     return 
         
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
     from_file = open(from_path)
     from_content = from_file.read()
@@ -61,13 +62,15 @@ def generate_page(from_path, template_path, dest_path):
     #print(title)
     x = template_content.replace( "{{ Title }}" , title)
     y = x.replace( "{{ Content }}" , content)
+    z = y.replace('href=/"', f'href="{basepath}')
+    template_replaced = z.replace('src=/"', f'src="{basepath}')
     if not os.path.exists(os.path.dirname(dest_path)) and os.path.dirname(dest_path) is not "":
         os.makedirs(os.path.dirname(dest_path))
     with open(dest_path, "w") as f:
-        f.write(y)
+        f.write(template_replaced)
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
-    #print(os.listdir(dir_path_content))
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath):
+    print(os.listdir(dir_path_content))
     #print(os.listdir(dest_dir_path))
 
     entries = os.listdir(dir_path_content)
@@ -83,22 +86,26 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
            if Path(src).suffix == ".md":
                dest = Path(dest).with_suffix(".html")
                
-           generate_page(src, template_path, dest)
+           generate_page(src, template_path, dest, basepath)
         # if os.path.isdir(src):
         #     generate_pages_recursive(src, template_path, dest_dir_path)
         # elif os.path.isfile(src):
         #     print (src)
         elif os.path.isdir(src):
-           generate_pages_recursive(src, template_path, dest)
+           generate_pages_recursive(src, template_path, dest, basepath)
 
 
 def main():
+    if len(sys.argv) > 1:
+        basepath = sys.argv[1]
+    else:
+        basepath = "/"
     #print("youkoso, sekai yo")
     # items = []
 
     copy("static", "public")
     #generate_page("content/index.md", "template.html", "public/index.html")
-    generate_pages_recursive("content", "template.html", "public")
+    generate_pages_recursive("content", "template.html", "docs", basepath)
     #print (extract_title("# Hello"))
     # print (new_items)
 
