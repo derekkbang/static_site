@@ -62,15 +62,16 @@ def generate_page(from_path, template_path, dest_path, basepath):
     #print(title)
     x = template_content.replace( "{{ Title }}" , title)
     y = x.replace( "{{ Content }}" , content)
-    z = y.replace('href=/"', f'href="{basepath}')
-    template_replaced = z.replace('src=/"', f'src="{basepath}')
+    z = y.replace('href="/', f'href="{basepath}')
+    template_replaced = z.replace('src="/', f'src="{basepath}')
     if not os.path.exists(os.path.dirname(dest_path)) and os.path.dirname(dest_path) is not "":
         os.makedirs(os.path.dirname(dest_path))
     with open(dest_path, "w") as f:
         f.write(template_replaced)
 
 def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath):
-    print(os.listdir(dir_path_content))
+    print(basepath)
+    #print(os.listdir(dir_path_content))
     #print(os.listdir(dest_dir_path))
 
     entries = os.listdir(dir_path_content)
@@ -97,15 +98,15 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, bas
 
 def main():
     if len(sys.argv) > 1:
-        basepath = sys.argv[1]
+        base_path = sys.argv[1]
     else:
-        basepath = "/"
+        base_path = "/"
     #print("youkoso, sekai yo")
     # items = []
 
-    copy("static", "public")
+    copy("static", "docs")
     #generate_page("content/index.md", "template.html", "public/index.html")
-    generate_pages_recursive("content", "template.html", "docs", basepath)
+    generate_pages_recursive("content", "template.html", "docs", base_path)
     #print (extract_title("# Hello"))
     # print (new_items)
 
